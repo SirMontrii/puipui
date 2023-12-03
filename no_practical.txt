@@ -1,0 +1,292 @@
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~WAP for finding optimal solution using Line Search method.
+def obj_func(x):
+    return x**2 + 2*x + 1
+
+def gradient(x):
+    return 2*x + 2
+
+def linearSearchOptimize(x, lr, n):
+    for i in range(n):
+        x = x - lr * gradient(x)
+    print("Solution =", x)
+
+linearSearchOptimize(0.0, 0.00001, 100)
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~WAP to compute the gradient
+import sympy as sp
+from sympy import symbols
+x1, x2 = symbols('x1 x2')
+f = 100 * (x2 - x1**2)**2 + (1 - x1)**2
+grad=[sp.diff(f,x1),sp.diff(f,x2)]
+grad
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~WAP to compute the hessian
+import sympy as sp
+from sympy import symbols
+from sympy import *
+x1,x2=symbols('x1 x2')
+f=100*(x2-x1**2)**2+(1-x1)**2
+f
+grad_f=[diff(f,x1),diff(f,x2)]
+print("gradient of function: ",grad_f)
+hessian=[[diff(grad_f[0],x1),diff(grad_f[0],x2)],[diff(grad_f[1],x1),diff(grad_f[1],x2)]]
+print("hessian of function: ",hessian)
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~WAP to calculate derivative and integral
+import sympy as n
+from sympy import *
+from sympy import symbols
+from sympy import expand, factor
+x,y=symbols('x y')
+print(x,y)
+expr=x + 2*y
+expanded_form = expand(x*expr)
+factor(expanded_form)
+init_printing(use_unicode=True)
+print(diff(sin(x)*exp(x),x))
+print(integrate(exp(x)*sin(x)+exp(x)*cos(x),x))
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~WAP to  multivariable function, calculate its gradient, and then compute the Hessian matrix.
+import sympy as sp
+# Define the variables and the function
+x, y, z = sp.symbols("x y z")
+fx = 100*((y - x**2)**2) + ((1 - x)**2) + z
+
+# Calculate the gradient of fx
+grad = [sp.diff(fx, var) for var in (x, y, z)]
+
+# Calculate the second-order partial derivatives for the Hessian matrix
+e1 = sp.diff(grad[0], x)
+e2 = sp.diff(grad[0], y)
+e3 = sp.diff(grad[0], z)
+e4 = sp.diff(grad[1], x)
+e5 = sp.diff(grad[1], y)
+e6 = sp.diff(grad[1], z)
+e7 = sp.diff(grad[2], x)
+e8 = sp.diff(grad[2], y)
+e9 = sp.diff(grad[2], z)
+
+# Create the Hessian matrix
+Mat = sp.Matrix([[e1, e2, e3], [e4, e5, e6], [e7, e8, e9]])
+
+# Print the Hessian Matrix
+print("Hessian Matrix of f(x, y, z):")
+Mat
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~WAP to solve LPP Graphically
+import pulp
+import matplotlib.pyplot as plt
+c1=3
+c2=2
+a1=1
+a2=1
+a3=2
+a4=1
+b1=4
+b2=6
+b3=12
+
+x1=[4 for i in range(0,11)]
+y1=[i for i in range(0,11)]
+x2=[i for i in range(0,11)]
+y2=[6 for i in range(0,11)]
+x3=[i for i in range(0,6)]
+y3=[(b3-a3*val)/a4 for val in x3]
+plt.plot(x1,y1, marker='.',c='darkgreen')
+plt.plot(x2,y2, marker='.',c='orange')
+plt.plot(x3,y3, marker='.',c='blue')
+plt.fill([0,4,4,3,0], [0,0,4,6,6],'b',alpha=0.5)
+plt.scatter([0,4,4,3,0], [0,0,4,6,6],c="Red", marker="o",label="Corner points")
+plt.xlabel('x-axis')
+plt.ylabel('y-axis')
+lp_problem=pulp.LpProblem("LPP",pulp.LpMaximize)
+x=pulp.LpVariable("x",lowBound=0)
+y=pulp.LpVariable("y",lowBound=0)
+lp_problem+=3*x + 2*y
+lp_problem+=x<=4
+lp_problem+=y<=6
+lp_problem+= (2*x + y<=12)
+lp_problem.solve()
+print(lp_problem.status)
+print("->SOLution is: ",pulp.LpStatus[lp_problem.status])
+solx=x.varValue
+soly=y.varValue
+print("->At : \nx = ", solx)
+print("y= ",soly)
+print("->Max Z = " , pulp.value(lp_problem.objective))
+plt.scatter (solx, soly, marker="*",c="Red", s=145,label="optimal solution")
+
+print(pulp.value(lp_problem.objective))
+plt.grid()
+plt.title("Graph for Z = 3x + 2y\n")
+plt.legend()
+plt.show()
+
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~WAP to find Global Optimal Solution of a function algebraically
+import numpy as np
+from scipy.optimize import minimize_scalar
+
+def obj_fun(x):
+    return -10 * np.cos(np.pi * x - 2.2) + (x + 1.5) * x
+
+# Use scipy's minimize_scalar to find the minimum
+result = minimize_scalar(obj_fun)
+best_solution = result.x
+best_value = result.fun
+
+print("Global optimal solution:", best_solution)
+print("Best value:", best_value)
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~WAP to find Global Optimal Solution of a function graphically
+import numpy as np
+import matplotlib.pyplot as plt
+
+def obj_func(x):
+  return -10*np.cos(np.pi*x-2.2)+(x+1.5)*x
+x=np.linspace(-10,10,1000)
+y=obj_func(x)
+plt.plot(x,y,marker='*',label='-10*np.cos(np.pi*x-2.2)+(x+1.5)*x', alpha=0.2)
+plt.xlabel("x-axis")
+plt.ylabel("y-axis")
+plt.title("Graph of function -10*np.cos(np.pi*x-2.2)+(x+1.5)*x")
+plt.grid(True)
+min_y=min(y)
+print("minimum-x: ",min_y)
+min_ind_y=np.argmin(y)
+min_x=x[min_ind_y]
+print("minimum of x: ",min_x)
+plt.scatter(min_x,min_y,c='red',label='global minimum')
+
+#print("value of the function is: ",obj_func(y))
+plt.legend()
+plt.show()
+
+
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~WAP to solve constraint optimization problem or Lagrange one
+import numpy as np
+import sympy as sp
+from sympy import symbols, diff, solve, Matrix
+x,y,l = symbols("x y lambda")
+f = x**2 + y**2
+g = x+y-1
+L = f-l*g
+partials=[diff(L,var)for var in (x,y,l)]
+# print(partials)
+# print(L)
+solution=solve(partials, (x,y,l), dict = True)[0]
+optimal_x = solution[x]
+optimal_y = solution[y]
+print("Optimal solution of x,y are ",optimal_x,",", optimal_y) 
+hessian_list = []
+for var2 in (x,y,l):	
+    row = []
+    for var1 in (x,y,l):
+        row.append(diff(L.diff(var1),var2))
+    hessian_list.append(row)
+    hessian_matrix = Matrix(hessian_list)
+print("Hessian Matrix is ",hessian_matrix,"\nDeterminant of matrix is ",hessian_matrix.det())
+if (hessian_matrix.det()>0):
+    print("Local Minima")
+elif(hessian_matrix.det()<0):
+    print("Local Maxima")
+else:
+    print("Test fails")
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~plotting two equations graphically
+import numpy as np
+import matplotlib.pyplot as plt
+
+def plot_constraint(eq, label):
+    x_values = np.linspace(0, 10, 100)
+    y_values = eq(x_values)
+    plt.plot(x_values, y_values, label=label)
+
+def solve_lpp_graphically(objective_function, constraints):
+    # Plot the objective function
+    x_values = np.linspace(0, 10, 100)
+    plt.plot(x_values, objective_function(x_values), label='Objective Function', linestyle='dashed')
+
+    # Plot the constraints
+    for constraint in constraints:
+        plot_constraint(constraint['equation'], constraint['label'])
+
+    # Find the feasible region
+    x = np.linspace(0, 10, 1000)
+    y = objective_function(x)
+    plt.fill_between(x, y, where=(y >= 0), interpolate=True, alpha=0.2, color='gray')
+
+    # Set labels and legend
+    plt.xlabel('x-axis')
+    plt.ylabel('y-axis')
+    plt.legend()
+    
+    # Show the plot
+    plt.show()
+
+# Example:
+# Maximize Z = 3x + 2y
+# Subject to:
+# 2x + y <= 20
+# 4x - 5y >= -10
+# x + 2y <= 8
+
+objective_function = lambda x: (20 - 2*x)  # Z = 3x + 2y
+constraints = [
+    {'equation': lambda x: 20 - 2*x, 'label': '2x + y <= 20'},
+    {'equation': lambda x: (4*x + 10) / 5, 'label': '4x - 5y >= -10'},
+    {'equation': lambda x: (8 - x) / 2, 'label': 'x + 2y <= 8'}
+]
+
+solve_lpp_graphically(objective_function, constraints)
+
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Write a program to solve the global optimal solution of the function using minimize and differential_evolution
+using minimize
+import numpy as np
+from scipy.optimize import minimize
+def func(x):
+  return -10*np.cos(np.pi*x-2.2)+(x+1.5)*x
+x0=0
+result = minimize(func,x0)
+print(result)
+print("\nGlobal optimal soluntion: " , result.x)
+print("local : ",func(result.x))
+
+using differential evolution
+import numpy as np
+from scipy.optimize import differential_evolution
+def func(x):
+  return -10*np.cos(np.pi*x-2.2)+(x+1.5)*x
+bound = [(-10,10)]
+result = differential_evolution(func,bound)
+global_min_x = result.x
+global_min_f = result.fun
+print(global_min_x)
+print(global_min_f)
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Write a program to solve a function -x^2 + 4x - 5 algebraically | P
+import sympy as sp
+x=sp.symbols("x")
+obj_fun= -x**2+4*x-5
+der = sp.diff(obj_fun,x)
+criticalpoints=sp.solve(der,x)
+print(criticalpoints)
+
+best_soln = None
+best_val = float('-inf')
+for pt in criticalpoints:
+  value = obj_fun.subs(x,pt)
+  print(value)
+  if(value>best_val):
+    best_soln = pt
+    best_val = value
+print("best soln: ",best_soln)
+print("best value: " , best_val)
