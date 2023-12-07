@@ -1,0 +1,560 @@
+----------fcfs
+#include <iostream>
+using namespace std;
+
+void fcfs(int processes[], int n, int burst_time[], float &avg_waiting_time, float &avg_turnaround_time) {
+    int waiting_time[n], turnaround_time[n];
+
+
+    waiting_time[0] = 0;
+
+
+    for (int i = 1; i < n; i++) {
+        waiting_time[i] = waiting_time[i - 1] + burst_time[i - 1];
+    }
+
+
+    for (int i = 0; i < n; i++) {
+        turnaround_time[i] = waiting_time[i] + burst_time[i];
+    }
+
+
+    float total_waiting_time = 0, total_turnaround_time = 0;
+    for (int i = 0; i < n; i++) {
+        total_waiting_time += waiting_time[i];
+        total_turnaround_time += turnaround_time[i];
+    }
+
+    avg_waiting_time = total_waiting_time / n;
+    avg_turnaround_time = total_turnaround_time / n;
+
+    cout << "Process\tBurst Time\tWaiting Time\tTurnaround Time" << endl;
+    for (int i = 0; i < n; i++) {
+        cout << "P" << processes[i] << "\t\t" << burst_time[i] << "\t\t" << waiting_time[i] << "\t\t" << turnaround_time[i] << endl;
+    }
+}
+
+int main() {
+    int n;
+
+    cout << "Enter the number of processes: ";
+    cin >> n;
+
+    int processes[n];
+    int burst_time[n];
+    float avg_waiting_time, avg_turnaround_time;
+
+    cout << "Enter the burst times for each process:" << endl;
+    for (int i = 0; i < n; i++) {
+        processes[i] = i + 1;
+        cout << "Process " << i + 1 << ": ";
+        cin >> burst_time[i];
+    }
+
+    fcfs(processes, n, burst_time, avg_waiting_time, avg_turnaround_time);
+
+    cout << "Average Waiting Time: " << avg_waiting_time << endl;
+    cout << "Average Turnaround Time: " << avg_turnaround_time << endl;
+
+    return 0;
+}
+
+
+-----sjf
+#include <iostream>
+using namespace std;
+
+void sjf(int burst_time[], int n, float &avg_waiting_time, float &avg_turnaround_time) {
+    int waiting_time[n], turnaround_time[n];
+
+    
+    bool executed[n] = {false};
+
+    int total_executed = 0; 
+    int current_time = 0;   // Current time
+
+    while (total_executed < n) {
+        int shortest = -1;
+        int shortest_burst = INT16_MAX;
+
+        
+        for (int i = 0; i < n; i++) {
+            if (!executed[i] && burst_time[i] < shortest_burst && burst_time[i] > 0) {
+                shortest = i;
+                shortest_burst = burst_time[i];
+            }
+        }
+
+        if (shortest == -1) {
+            current_time++;
+        } else {
+            waiting_time[shortest] = current_time;
+            current_time += burst_time[shortest];
+            turnaround_time[shortest] = current_time;
+            executed[shortest] = true;
+            total_executed++;
+        }
+    }
+
+    
+    float total_waiting_time = 0, total_turnaround_time = 0;
+    for (int i = 0; i < n; i++) {
+        total_waiting_time += waiting_time[i];
+        total_turnaround_time += turnaround_time[i];
+    }
+
+    avg_waiting_time = total_waiting_time / n;
+    avg_turnaround_time = total_turnaround_time / n;
+
+    cout << "Process\tBurst Time\tWaiting Time\tTurnaround Time" << endl;
+    for (int i = 0; i < n; i++) {
+        cout << "P" << i + 1 << "\t\t" << burst_time[i] << "\t\t" << waiting_time[i] << "\t\t" << turnaround_time[i] << endl;
+    }
+}
+
+int main() {
+    int n;
+
+    cout << "Enter the number of processes: ";
+    cin >> n;
+
+    int burst_time[n];
+    float avg_waiting_time, avg_turnaround_time;
+
+    cout << "Enter the burst times for each process:" << endl;
+    for (int i = 0; i < n; i++) {
+        cout << "Process " << i + 1 << ": ";
+        cin >> burst_time[i];
+    }
+
+    sjf(burst_time, n, avg_waiting_time, avg_turnaround_time);
+
+    cout << "Average Waiting Time: " << avg_waiting_time << endl;
+    cout << "Average Turnaround Time: " << avg_turnaround_time << endl;
+
+    return 0;
+}
+
+
+----prio
+
+#include <iostream>
+using namespace std;
+
+void priorityScheduling(int processes[], int n, int burst_time[], int priority[], float &avg_waiting_time, float &avg_turnaround_time) {
+    int waiting_time[n], turnaround_time[n];
+
+    
+    waiting_time[0] = 0;
+
+    // Sort processes based on priority (non-decreasing order)
+    for (int i = 0; i < n - 1; i++) {
+        for (int j = 0; j < n - i - 1; j++) {
+            if (priority[j] > priority[j + 1]) {
+                // Swap priority, burst_time, and process order
+                swap(priority[j], priority[j + 1]);
+                swap(burst_time[j], burst_time[j + 1]);
+                swap(processes[j], processes[j + 1]);
+            }
+        }
+    }
+
+    
+    for (int i = 1; i < n; i++) {
+        waiting_time[i] = waiting_time[i - 1] + burst_time[i - 1];
+    }
+
+    
+    for (int i = 0; i < n; i++) {
+        turnaround_time[i] = waiting_time[i] + burst_time[i];
+    }
+
+    
+    float total_waiting_time = 0, total_turnaround_time = 0;
+    for (int i = 0; i < n; i++) {
+        total_waiting_time += waiting_time[i];
+        total_turnaround_time += turnaround_time[i];
+    }
+
+    avg_waiting_time = total_waiting_time / n;
+    avg_turnaround_time = total_turnaround_time / n;
+
+    cout << "Process\tBurst Time\tPriority\tWaiting Time\tTurnaround Time" << endl;
+    for (int i = 0; i < n; i++) {
+        cout << "P" << processes[i] << "\t\t" << burst_time[i] << "\t\t" << priority[i] << "\t\t" << waiting_time[i] << "\t\t" << turnaround_time[i] << endl;
+    }
+}
+
+int main() {
+    int n;
+
+    cout << "Enter the number of processes: ";
+    cin >> n;
+
+    int processes[n];
+    int burst_time[n];
+    int priority[n];
+    float avg_waiting_time, avg_turnaround_time;
+    cout << "Enter the burst times and priorities for each process:" << endl;
+    for (int i = 0; i < n; i++) {
+        processes[i] = i + 1;
+        cout << "Process " << i + 1 << " Burst Time: ";
+        cin >> burst_time[i];
+        cout << "Priority: ";
+        cin >> priority[i];
+    }
+
+    priorityScheduling(processes, n, burst_time, priority, avg_waiting_time, avg_turnaround_time);
+
+    cout << "Average Waiting Time: " << avg_waiting_time << endl;
+    cout << "Average Turnaround Time: " << avg_turnaround_time << endl;
+
+    return 0;
+}
+
+----kernel1
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <sstream>
+using namespace std;
+
+int main() {
+    // Get the Linux kernel version using the 'uname' command
+    string kernel_version;
+    FILE* pipe = popen("uname -r", "r");
+    if (!pipe) {
+        cerr << "Failed to run 'uname' command." << endl;
+        return 1;
+    }
+    char buffer[128];
+    if (fgets(buffer, sizeof(buffer), pipe) != nullptr) {
+        kernel_version = buffer;
+    }
+    pclose(pipe);
+
+    // Get CPU information from /proc/cpuinfo
+    string cpu_info;
+    ifstream cpu_info_file("/proc/cpuinfo");
+    if (cpu_info_file.is_open()) {
+        string line;
+        while (getline(cpu_info_file, line)) {
+            cpu_info += line + "\n";
+        }
+        cpu_info_file.close();
+    } else {
+        cerr << "Failed to open /proc/cpuinfo file." << endl;
+        return 1;
+    }
+
+    // printing all that shit
+    cout << "Linux Kernel Version: " << kernel_version;
+    cout << "\n\nCPU Information:\n" << cpu_info;
+
+    return 0;
+}
+
+
+-----kernel2
+#include <iostream>
+#include <fstream>
+#include <string>
+using namespace std;
+
+void getMemoryInfo() {
+    ifstream memInfoFile("/proc/meminfo");
+    if (!memInfoFile.is_open()) {
+        cerr << "Failed to open /proc/meminfo file." << endl;
+        return;
+    }
+
+    string line;
+    while (getline(memInfoFile, line)) {
+        cout << line << endl;
+    }
+
+    memInfoFile.close();
+}
+
+int main() {
+    cout << "Memory Information:" << endl;
+    getMemoryInfo();
+    return 0;
+}
+
+
+
+----copy
+
+#include <iostream>
+#include <fstream>
+#include <cstdlib>
+#include <cstring>
+#include <unistd.h>
+#include <fcntl.h>
+using namespace std;
+
+int main(int argc, char* argv[]) {
+    if (argc != 3) {
+        cerr << "Usage: " << argv[0] << " <source_file> <destination_file>" << endl;
+        exit(1);
+    }
+
+    int source_fd = open(argv[1], O_RDONLY);
+    if (source_fd == -1) {
+        perror("Failed to open source file");
+        exit(1);
+    }
+
+    int dest_fd = open(argv[2], O_WRONLY | O_CREAT | O_TRUNC, 0644);
+    if (dest_fd == -1) {
+        perror("Failed to open destination file");
+        close(source_fd);
+        exit(1);
+    }
+
+    char buffer[4096];
+    ssize_t bytes_read;
+
+    while ((bytes_read = read(source_fd, buffer, sizeof(buffer))) > 0) {
+        if (write(dest_fd, buffer, bytes_read) != bytes_read) {
+            perror("Write error");
+            close(source_fd);
+            close(dest_fd);
+            exit(1);
+        }
+    }
+
+    close(source_fd);
+    close(dest_fd);
+
+    cout << "File copied successfully from " << argv[1] << " to " << argv[2] << endl;
+
+    return 0;
+}
+
+
+
+
+----prthread
+
+#include <iostream>
+#include <pthread.h>
+using namespace std;
+struct ThreadData {
+    int* array;
+    int start;
+    int end;
+    int sum;
+};
+
+void* sumArray(void* arg) {
+    ThreadData* data = static_cast<ThreadData*>(arg);
+    int partialSum = 0;
+
+    for (int i = data->start; i <= data->end; i++) {
+        partialSum += data->array[i];
+    }
+
+    data->sum = partialSum;
+    pthread_exit(nullptr);
+}
+
+int main() {
+    int n;
+    cout << "Enter the number of elements: ";
+    cin >> n;
+
+    int* array = new int[n];
+    for (int i = 0; i < n; i++) {
+        cout << "Enter element " << i + 1 << ": ";
+        cin >> array[i];
+    }
+
+    int numThreads;
+    cout << "Enter the number of threads: ";
+    cin >> numThreads;
+
+    pthread_t* threads = new pthread_t[numThreads];
+    ThreadData* threadData = new ThreadData[numThreads];
+
+    int elementsPerThread = n / numThreads;
+    int remainingElements = n % numThreads;
+
+    int start = 0;
+    for (int i = 0; i < numThreads; i++) {
+        int end = start + elementsPerThread - 1;
+        if (i < remainingElements) {
+            end++;
+        }
+
+        threadData[i].array = array;
+        threadData[i].start = start;
+        threadData[i].end = end;
+
+        pthread_create(&threads[i], nullptr, sumArray, &threadData[i]);
+
+        start = end + 1;
+    }
+
+    for (int i = 0; i < numThreads; i++) {
+        pthread_join(threads[i], nullptr);
+    }
+
+    int finalSum = 0;
+    for (int i = 0; i < numThreads; i++) {
+        finalSum += threadData[i].sum;
+    }
+
+    cout << "The sum of the array is: " << finalSum << endl;
+
+    delete[] array;
+    delete[] threads;
+    delete[] threadData;
+
+    return 0;
+}
+
+-------fitting h bro
+#include <iostream>
+using namespace std;
+
+void firstFit(int bsize[], int psize[], int bno, int pno);
+void bestFit(int bsize[], int psize[], int bno, int pno);
+void worstFit(int bsize[], int psize[], int bno, int pno);
+
+int main() {
+    int bsize[10], psize[10], bno, pno;
+
+    // Initialization
+    for (int i = 0; i < 10; i++) {
+        bsize[i] = 0;
+        psize[i] = 0;
+    }
+
+    cout << "Enter no. of blocks: ";
+    cin >> bno;
+    cout << "\nEnter size of each block: ";
+    for (int i = 0; i < bno; i++)
+        cin >> bsize[i];
+
+    cout << "\nEnter no. of processes: ";
+    cin >> pno;
+    cout << "\nEnter size of each process: ";
+    for (int i = 0; i < pno; i++)
+        cin >> psize[i];
+
+    int choice;
+    cout << "\nChoose Memory Allocation Algorithm:\n";
+    cout << "1. First Fit\n";
+    cout << "2. Best Fit\n";
+    cout << "3. Worst Fit\n";
+    cout << "Enter your choice: ";
+    cin >> choice;
+
+    switch (choice) {
+        case 1:
+            firstFit(bsize, psize, bno, pno);
+            break;
+
+        case 2:
+            bestFit(bsize, psize, bno, pno);
+            break;
+
+        case 3:
+            worstFit(bsize, psize, bno, pno);
+            break;
+
+        default:
+            cout << "Invalid choice";
+            break;
+    }
+
+    return 0;
+}
+
+void firstFit(int bsize[], int psize[], int bno, int pno) {
+    int flags[10] = {0};
+    int allocation[10] = {-1};
+
+    for (int i = 0; i < pno; i++)
+        for (int j = 0; j < bno; j++)
+            if (flags[j] == 0 && bsize[j] >= psize[i]) {
+                allocation[j] = i;
+                flags[j] = 1;
+                break;
+            }
+
+    // Display allocation details for First Fit
+    cout << "\nFirst Fit Allocation:";
+    cout << "\nBlock no.\tsize\t\tprocess no.\t\tsize";
+    for (int i = 0; i < bno; i++) {
+        cout << "\n" << i + 1 << "\t\t" << bsize[i] << "\t\t";
+        if (flags[i] == 1)
+            cout << allocation[i] + 1 << "\t\t\t" << psize[allocation[i]];
+        else
+            cout << "Not allocated";
+    }
+}
+
+void bestFit(int bsize[], int psize[], int bno, int pno) {
+    int flags[10] = {0};
+    int allocation[10] = {-1};
+
+    for (int i = 0; i < pno; i++) {
+        int bestFitBlock = -1;
+        for (int j = 0; j < bno; j++) {
+            if (flags[j] == 0 && bsize[j] >= psize[i]) {
+                if (bestFitBlock == -1 || bsize[j] < bsize[bestFitBlock]) {
+                    bestFitBlock = j;
+                }
+            }
+        }
+        if (bestFitBlock != -1) {
+            allocation[bestFitBlock] = i;
+            flags[bestFitBlock] = 1;
+        }
+    }
+
+    // Display allocation details for Best Fit
+    cout << "\nBest Fit Allocation:";
+    cout << "\nBlock no.\tsize\t\tprocess no.\t\tsize";
+    for (int i = 0; i < bno; i++) {
+        cout << "\n" << i + 1 << "\t\t" << bsize[i] << "\t\t";
+        if (flags[i] == 1)
+            cout << allocation[i] + 1 << "\t\t\t" << psize[allocation[i]];
+        else
+            cout << "Not allocated";
+    }
+}
+
+void worstFit(int bsize[], int psize[], int bno, int pno) {
+    int flags[10] = {0};
+    int allocation[10] = {-1};
+
+    for (int i = 0; i < pno; i++) {
+        int worstFitBlock = -1;
+        for (int j = 0; j < bno; j++) {
+            if (flags[j] == 0 && bsize[j] >= psize[i]) {
+                if (worstFitBlock == -1 || bsize[j] > bsize[worstFitBlock]) {
+                    worstFitBlock = j;
+                }
+            }
+        }
+        if (worstFitBlock != -1) {
+            allocation[worstFitBlock] = i;
+            flags[worstFitBlock] = 1;
+        }
+    }
+
+    // Display allocation details for Worst Fit
+    cout << "\nWorst Fit Allocation:";
+    cout << "\nBlock no.\tsize\t\tprocess no.\t\tsize";
+    for (int i = 0; i < bno; i++) {
+        cout << "\n" << i + 1 << "\t\t" << bsize[i] << "\t\t";
+        if (flags[i] == 1)
+            cout << allocation[i] + 1 << "\t\t\t" << psize[allocation[i]];
+        else
+            cout << "Not allocated";
+    }
+}
